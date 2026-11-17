@@ -1,15 +1,24 @@
-"""Module for decoding hidden messages stored as black pixels in an image."""
+"""Module for decoding hidden messages stored as dark pixels in an image."""
 
 from PIL import Image
 
 DEFAULT_IMAGE_PATH = "resources/code.png"
-BLACK_PIXEL = (0, 0, 0)
+DARK_THRESHOLD = 50
+
+
+def is_dark_pixel(pixel: tuple[int, ...]) -> bool:
+    """
+    Check whether an RGB pixel is black or near-black.
+
+    :param pixel: Tuple of RGB color values
+    :return: True if all RGB channels are below the threshold, False otherwise
+    """
+    return all(channel < DARK_THRESHOLD for channel in pixel[:3])
 
 
 def remember_remember(image_path: str = DEFAULT_IMAGE_PATH) -> str:
     """
-    Decode a hidden message from an image where each column has one black
-    pixel.
+    Decode a hidden message from an image where each column has one dark pixel.
 
     :param image_path: Path to the encoded image file
     :return: The decoded secret message
@@ -22,7 +31,7 @@ def remember_remember(image_path: str = DEFAULT_IMAGE_PATH) -> str:
                 chr(row)
                 for col in range(width)
                 for row in range(height)
-                if image.getpixel((col, row)) == BLACK_PIXEL
+                if is_dark_pixel(image.getpixel((col, row)))
             ]
         return "".join(decoded_chars)
     except FileNotFoundError:
